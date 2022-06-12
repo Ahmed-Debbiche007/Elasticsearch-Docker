@@ -9,68 +9,6 @@ the visualization power of Kibana.
 
 
 
-Based on the official Docker images from Elastic:
-
-* [Elasticsearch](https://github.com/elastic/elasticsearch/tree/master/distribution/docker)
-* [Logstash](https://github.com/elastic/logstash/tree/master/docker)
-* [Kibana](https://github.com/elastic/kibana/tree/master/src/dev/build/tasks/os_packages/docker_generator)
-
-## Contents
-
-1. [Requirements](#requirements)
-   * [Host setup](#host-setup)
-   * [Docker Desktop](#docker-desktop)
-     * [Windows](#windows)
-     * [macOS](#macos)
-1. [Usage](#usage)
-   * [Bringing up the stack](#bringing-up-the-stack)
-   * [Initial setup](#initial-setup)
-     * [Setting up user authentication](#setting-up-user-authentication)
-     * [Injecting data](#injecting-data)
-
-
-## Requirements
-
-### Host setup
-
-* [Docker Engine][docker-install] version **18.06.0** or newer
-* [Docker Compose][compose-install] version **1.26.0** or newer (including [Compose V2][compose-v2])
-* 1.5 GB of RAM
-
-> **Warning**  
-> While Compose versions between **1.22.0** and **1.25.5** can technically run this stack as well, these versions have a
-> [known issue](https://github.com/deviantony/docker-elk/pull/678#issuecomment-1055555368) which prevents them from
-> parsing quoted values properly inside `.env` files.
-
-> **Note**  
-> Especially on Linux, make sure your user has the [required permissions][linux-postinstall] to interact with the Docker
-> daemon.
-
-By default, the stack exposes the following ports:
-
-* 9600: Logstash monitoring API
-* 9200: Elasticsearch HTTP
-* 9300: Elasticsearch TCP transport
-* 5601: Kibana
-
-> **Warning**  
-> Elasticsearch's [bootstrap checks][booststap-checks] were purposely disabled to facilitate the setup of the Elastic
-> stack in development environments. For production setups, we recommend users to set up their host according to the
-> instructions from the Elasticsearch documentation: [Important System Configuration][es-sys-config].
-
-### Docker Desktop
-
-#### Windows
-
-If you are using the legacy Hyper-V mode of _Docker Desktop for Windows_, ensure [File Sharing][win-filesharing] is
-enabled for the `C:` drive.
-
-#### macOS
-
-The default configuration of _Docker Desktop for Mac_ allows mounting files from `/Users/`, `/Volume/`, `/private/`,
-`/tmp` and `/var/folders` exclusively. Make sure the repository is cloned in one of those locations or follow the
-instructions from the [documentation][mac-filesharing] to add more locations.
-
 ## Usage
 
 > **Warning**  
@@ -117,7 +55,7 @@ reset the passwords of all aforementioned Elasticsearch users to random secrets.
 
 1. Reset passwords for default users
 
-    The commands below resets the passwords of the `elastic`, `logstash_internal` and `kibana_system` users. Take note
+    The commands below resets the passwords of the `elastic` and `kibana_system` users. Take note
     of them.
 
     ```console
@@ -138,23 +76,11 @@ reset the passwords of all aforementioned Elasticsearch users to random secrets.
     Its value isn't used by any core component, but [extensions](#how-to-enable-the-provided-extensions) use it to
     connect to Elasticsearch.
 
-    > **Note**  
-    > In case you don't plan on using any of the provided [extensions](#how-to-enable-the-provided-extensions), or
-    > prefer to create your own roles and users to authenticate these services, it is safe to remove the
-    > `ELASTIC_PASSWORD` entry from the `.env` file altogether after the stack has been initialized.
-
-    Replace the password of the `logstash_internal` user inside the `.env` file with the password generated in the
-    previous step. Its value is referenced inside the Logstash pipeline file (`logstash/pipeline/logstash.conf`).
-
-    Replace the password of the `kibana_system` user inside the `.env` file with the password generated in the previous
-    step. Its value is referenced inside the Kibana configuration file (`kibana/config/kibana.yml`).
-
-    See the [Configuration](#configuration) section below for more information about these configuration files.
-
-1. Restart Logstash and Kibana to re-connect to Elasticsearch using the new passwords
+   
+1. Restart and Kibana to re-connect to Elasticsearch using the new passwords
 
     ```console
-    $ docker-compose up -d logstash kibana
+    $ docker-compose up -d kibana
     ```
 
 > **Note**  
